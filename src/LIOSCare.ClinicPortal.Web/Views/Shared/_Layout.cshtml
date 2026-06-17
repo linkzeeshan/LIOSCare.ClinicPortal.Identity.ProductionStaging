@@ -1,0 +1,67 @@
+@using System.Security.Claims
+@{
+    var title = ViewData["Title"]?.ToString() ?? "Dashboard";
+    var isAuthPage = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Account", StringComparison.OrdinalIgnoreCase);
+    var name = User.FindFirst("full_name")?.Value ?? User.Identity?.Name ?? "User";
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title - LIOSCare Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
+</head>
+<body>
+@if (isAuthPage && !User.Identity!.IsAuthenticated)
+{
+    @RenderBody()
+}
+else
+{
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand"><div class="brand-logo"><img src="~/logo/LIO.jpeg" alt="LIOSCare logo" /></div><div><strong>LIOSCare</strong><span>Clinic Operations</span></div></div>
+            <nav class="nav-section">
+                @if (User.IsInRole("SuperAdmin"))
+                {
+                    <a asp-controller="SuperAdmin" asp-action="Dashboard"><i class="bi bi-speedometer2"></i> Executive Dashboard</a>
+                    <a asp-controller="SuperAdmin" asp-action="Facilities"><i class="bi bi-buildings"></i> Clinics / Hospitals</a>
+                    <a asp-controller="SuperAdmin" asp-action="SuperAdmins"><i class="bi bi-shield-lock"></i> Super Admins</a>
+                }
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Admin" asp-action="Dashboard"><i class="bi bi-grid-1x2"></i> Clinic Dashboard</a>
+                    <a asp-controller="Admin" asp-action="Doctors"><i class="bi bi-person-vcard"></i> Doctors</a>
+                    <a asp-controller="Admin" asp-action="CreateUser"><i class="bi bi-people"></i> Clinic Users</a>
+                }
+                @if (User.IsInRole("Doctor"))
+                {
+                    <a asp-controller="Doctor" asp-action="Dashboard"><i class="bi bi-house-heart"></i> Doctor Home</a>
+                    <a asp-controller="Doctor" asp-action="Jobs"><i class="bi bi-broadcast"></i> Job Offers</a>
+                    <a asp-controller="Doctor" asp-action="Sessions"><i class="bi bi-chat-dots"></i> Chat Sessions</a>
+                    <a asp-controller="Doctor" asp-action="History"><i class="bi bi-clock-history"></i> Chat History</a>
+                    <a asp-controller="Doctor" asp-action="Reschedules"><i class="bi bi-calendar-event"></i> Reschedule</a>
+                    <a asp-controller="Doctor" asp-action="Notifications"><i class="bi bi-bell"></i> Notifications</a>
+                }
+            </nav>
+            <div class="privacy-card"><i class="bi bi-incognito"></i><div><strong>Patient anonymity</strong><span>Doctors see anonymous patient labels only.</span></div></div>
+            <form asp-controller="Account" asp-action="Logout" method="post">@Html.AntiForgeryToken()<button class="btn btn-ghost w-100"><i class="bi bi-box-arrow-left"></i> Logout</button></form>
+        </aside>
+        <main class="main">
+            <header class="topbar"><button class="mobile-menu" data-menu><i class="bi bi-list"></i></button><div class="search"><i class="bi bi-search"></i><span>Search clinics, doctors, sessions, jobs...</span></div><div class="profile-chip"><span>@name</span><div class="avatar">@name.Substring(0,1)</div></div></header>
+            <section class="page">
+                <div class="page-title"><div><p>Production staging workspace</p><h1>@title</h1></div>@RenderSection("Actions", false)</div>
+                @RenderBody()
+            </section>
+        </main>
+    </div>
+}
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", false)
+</body>
+</html>

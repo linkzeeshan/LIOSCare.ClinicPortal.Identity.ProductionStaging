@@ -1,0 +1,3 @@
+@model IReadOnlyList<ChatSessionVm>
+@{ ViewData["Title"] = "Chat Sessions"; }
+<section class="card"><table class="table"><thead><tr><th>Patient</th><th>Type</th><th>Status</th><th>Start</th><th>Auto Close</th><th>Duration</th><th></th></tr></thead><tbody>@foreach(var s in Model){<tr><td><strong>@s.AnonymousPatient</strong></td><td>@s.JobType</td><td><span class="badge @s.Status.ToLower()">@s.Status</span></td><td>@s.ScheduledStartAt.LocalDateTime.ToString("MMM dd HH:mm")</td><td>@s.AutoCloseAt.LocalDateTime.ToString("HH:mm")</td><td>@s.DurationMinutes min</td><td><a asp-action="Session" asp-route-id="@s.Id">Open</a><a asp-action="NewReport" asp-route-sessionId="@s.Id" class="ms">Report</a></td></tr>}</tbody></table></section>

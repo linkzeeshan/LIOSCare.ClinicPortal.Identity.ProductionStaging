@@ -1,0 +1,4 @@
+@model IReadOnlyList<MetricVm>
+@{ ViewData["Title"] = "Doctor Home"; }
+<partial name="_Metrics" model="Model" />
+<div class="grid-2"><article class="card"><h2>Doctor Workspace</h2><p>Accept anonymous patient jobs, manage live chat sessions, respond to reschedules and create confidential reports.</p><a class="btn btn-primary" asp-action="Jobs">View Job Offers</a></article><article class="card"><h2>Rules</h2><ul class="clean"><li>Maximum 3 active chat sessions</li><li>Maximum 1 online consultation</li><li>Sessions close automatically after booked duration</li><li>Patient identity remains anonymous</li></ul></article></div>

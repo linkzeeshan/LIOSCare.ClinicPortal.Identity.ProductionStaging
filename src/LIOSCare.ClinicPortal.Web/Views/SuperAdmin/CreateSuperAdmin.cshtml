@@ -1,0 +1,3 @@
+@model CreateUserVm
+@{ ViewData["Title"] = "Create Super Admin"; }
+<form asp-action="CreateSuperAdmin" method="post" class="card form">@Html.AntiForgeryToken()<div asp-validation-summary="ModelOnly" class="validation"></div><label>Full Name<input asp-for="FullName" /></label><label>Email<input asp-for="Email" /></label><label>Password<input asp-for="Password" type="password" /></label><button class="btn btn-primary">Create Super Admin</button></form>

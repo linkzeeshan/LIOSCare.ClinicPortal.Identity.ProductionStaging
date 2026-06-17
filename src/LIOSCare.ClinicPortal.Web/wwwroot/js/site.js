@@ -1,0 +1,1 @@
+document.addEventListener('DOMContentLoaded',()=>{document.querySelector('[data-menu]')?.addEventListener('click',()=>document.body.classList.toggle('sidebar-open'));const p=location.pathname.toLowerCase();document.querySelectorAll('.nav-section a').forEach(a=>{const h=(a.getAttribute('href')||'').toLowerCase();if(h&&p.startsWith(h))a.classList.add('active')})});

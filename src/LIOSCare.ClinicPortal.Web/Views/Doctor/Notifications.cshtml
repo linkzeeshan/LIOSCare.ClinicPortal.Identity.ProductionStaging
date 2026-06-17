@@ -1,0 +1,3 @@
+@model IReadOnlyList<NotificationVm>
+@{ ViewData["Title"] = "Notifications"; }
+<section class="timeline">@foreach(var n in Model){<article class="notice @(n.IsRead?"read":"unread")"><span class="badge blue">@n.Type</span><h3>@n.Title</h3><p>@n.Body</p><small>@n.CreatedAt.LocalDateTime.ToString("MMM dd HH:mm")</small></article>}</section>

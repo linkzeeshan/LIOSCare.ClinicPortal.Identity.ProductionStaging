@@ -1,0 +1,4 @@
+@model IReadOnlyList<MetricVm>
+@{ ViewData["Title"] = "Clinic Admin Dashboard"; }
+<partial name="_Metrics" model="Model" />
+<div class="grid-2"><article class="card"><h2>Doctor Operations</h2><p>Manage only doctors, packages, timings and sessions linked to your clinic/hospital.</p><a class="btn btn-primary" asp-action="Doctors">Manage Doctors</a></article><article class="card"><h2>Tenant Isolation</h2><p>This admin account is scoped by <code>ClinicHospitalId</code> and <code>clinic_id</code> claim.</p></article></div>

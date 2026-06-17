@@ -1,0 +1,7 @@
+@model IReadOnlyList<MetricVm>
+<div class="metric-grid">
+@foreach (var m in Model)
+{
+    <article class="metric @m.Tone"><div class="metric-icon"><i class="bi @m.Icon"></i></div><div><span>@m.Title</span><strong>@m.Value</strong><small>@m.Hint</small></div></article>
+}
+</div>

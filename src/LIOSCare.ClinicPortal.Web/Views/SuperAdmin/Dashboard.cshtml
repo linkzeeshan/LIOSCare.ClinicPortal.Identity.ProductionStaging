@@ -1,0 +1,4 @@
+@model IReadOnlyList<MetricVm>
+@{ ViewData["Title"] = "Super Admin Dashboard"; }
+<partial name="_Metrics" model="Model" />
+<div class="grid-2"><article class="card"><h2>Platform governance</h2><p>Approve clinics/hospitals, assign admins, and control global role access.</p><a class="btn btn-primary" asp-action="Facilities">Manage Facilities</a></article><article class="card"><h2>Security model</h2><ul class="clean"><li>Identity users and roles</li><li>Role claims for permissions</li><li>Clinic-scoped data isolation</li></ul></article></div>

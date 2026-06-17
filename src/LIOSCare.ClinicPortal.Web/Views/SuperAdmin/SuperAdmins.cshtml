@@ -1,0 +1,4 @@
+@model IReadOnlyList<AppUserVm>
+@{ ViewData["Title"] = "Super Admin Management"; }
+@section Actions{<a class="btn btn-primary" asp-action="CreateSuperAdmin">Create Super Admin</a>}
+<section class="card"><table class="table"><thead><tr><th>Name</th><th>Email</th><th>Status</th></tr></thead><tbody>@foreach(var u in Model){<tr><td>@u.FullName</td><td>@u.Email</td><td><span class="badge active">@u.Status</span></td></tr>}</tbody></table></section>

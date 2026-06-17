@@ -1,0 +1,3 @@
+@using LIOSCare.ClinicPortal.Web.Data.Entities
+@{ ViewData["Title"] = "Chat Session"; var messages = (IReadOnlyList<ChatMessage>)ViewBag.Messages; var sessionId = (Guid)ViewBag.SessionId; }
+<div class="chat-panel card"><div class="messages">@foreach(var m in messages){<div class="bubble @(m.SenderType=="Doctor"?"mine":"theirs")"><strong>@m.SenderType</strong><p>@m.Body</p><small>@m.CreatedAt.LocalDateTime.ToString("HH:mm")</small></div>}</div><form asp-action="SendMessage" method="post" class="composer">@Html.AntiForgeryToken()<input type="hidden" name="SessionId" value="@sessionId"/><input name="Body" placeholder="Write secure message..."/><button class="btn btn-primary">Send</button></form></div>
