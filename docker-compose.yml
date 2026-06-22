@@ -1,59 +1,52 @@
-version: '3.8'
-
 services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: lios-clinic-portal-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lioscare_production
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - clinic_portal_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d lioscare_production"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - lioscare-network
+
   lioscare-app:
     build:
-      context: ./src/LIOSCare.ClinicPortal.Web
-      dockerfile: Dockerfile
-    ports:
-      - "8080:80"
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=lioscare_production
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - ALLOWED_HOSTS=localhost,127.0.0.1
-      - ASPNETCORE_ENVIRONMENT=Production
+      context: .
+      dockerfile: src/LIOSCare.ClinicPortal.Web/Dockerfile
+    image: lios-clinic-portal:latest
+    container_name: lios-clinic-portal
+    restart: unless-stopped
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    ports:
+      - "4001:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      AllowedHosts: "*"
+
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=lioscare_production;Username=${DB_USER};Password=${DB_PASSWORD};Include Error Detail=false"
+
+      Portal__AutoMigrateOnStartup: "true"
+      Portal__SeedDemoData: "true"
     volumes:
       - ./logs:/app/logs
-    restart: unless-stopped
-    networks:
-      - lioscare-network
-
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      - POSTGRES_DB=lioscare_production
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database-init:/docker-entrypoint-initdb.d
-    restart: unless-stopped
-    networks:
-      - lioscare-network
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/nginx/ssl
-    depends_on:
-      - lioscare-app
-    restart: unless-stopped
+      - clinic_portal_uploads:/app/wwwroot/uploads
     networks:
       - lioscare-network
 
 volumes:
-  postgres_data:
+  clinic_portal_pgdata:
+  clinic_portal_uploads:
 
 networks:
   lioscare-network:
