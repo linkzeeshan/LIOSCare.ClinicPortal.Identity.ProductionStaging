@@ -6,6 +6,7 @@ using LIOSCare.ClinicPortal.Web.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using System.Security.Claims;
 
 namespace LIOSCare.ClinicPortal.Web.Services;
@@ -304,19 +305,82 @@ public sealed class ChatSessionAutoCloseWorker(IServiceScopeFactory scopeFactory
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var delay = TimeSpan.FromSeconds(Math.Max(15, options.Value.AutoCloseWorkerIntervalSeconds));
+        
+        // Wait a bit for application startup and migrations
+        await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+        
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
                 using var scope = scopeFactory.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                
+                // Check if database is available and tables exist
+                if (!await IsDatabaseReady(db, stoppingToken))
+                {
+                    logger.LogWarning("Database not ready for auto-close worker. Waiting...");
+                    await Task.Delay(delay, stoppingToken);
+                    continue;
+                }
+                
                 var now = DateTimeOffset.UtcNow;
-                var sessions = await db.ChatSessions.Where(x => x.Status == "Active" && x.AutoCloseAt <= now).ToListAsync(stoppingToken);
-                foreach (var s in sessions) { s.Status = "Closed"; s.ClosedAt = now; s.CloseReason = "Auto closed after booked duration"; s.UpdatedAt = now; }
-                if (sessions.Count > 0) await db.SaveChangesAsync(stoppingToken);
+                var sessions = await db.ChatSessions
+                    .Where(x => x.Status == "Active" && x.AutoCloseAt <= now)
+                    .ToListAsync(stoppingToken);
+                    
+                foreach (var s in sessions) 
+                { 
+                    s.Status = "Closed"; 
+                    s.ClosedAt = now; 
+                    s.CloseReason = "Auto closed after booked duration"; 
+                    s.UpdatedAt = now; 
+                }
+                
+                if (sessions.Count > 0) 
+                {
+                    await db.SaveChangesAsync(stoppingToken);
+                    logger.LogInformation("Auto-closed {Count} chat sessions", sessions.Count);
+                }
             }
-            catch (Exception ex) { logger.LogError(ex, "Failed to auto-close chat sessions."); }
+            catch (Npgsql.PostgresException ex) when (ex.SqlState == "42P01") // relation does not exist
+            {
+                logger.LogWarning("Chat sessions table not found. Migration may not be complete. Retrying...");
+            }
+            catch (Exception ex) 
+            { 
+                logger.LogError(ex, "Failed to auto-close chat sessions."); 
+            }
+            
             await Task.Delay(delay, stoppingToken);
+        }
+    }
+    
+    private async Task<bool> IsDatabaseReady(ApplicationDbContext db, CancellationToken ct)
+    {
+        try
+        {
+            // Try to query a simple table to check if database is ready
+            await db.Database.CanConnectAsync(ct);
+            
+            // Check if the chat_sessions table exists
+            var connection = db.Database.GetDbConnection();
+            await connection.OpenAsync(ct);
+            try
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = "SELECT 1 FROM information_schema.tables WHERE table_schema = 'portal' AND table_name = 'chat_sessions'";
+                var result = await command.ExecuteScalarAsync(ct);
+                return result != null;
+            }
+            finally
+            {
+                await connection.CloseAsync();
+            }
+        }
+        catch
+        {
+            return false;
         }
     }
 }
