@@ -62,6 +62,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.Property(x => x.WorkingDays).HasColumnType("text[]");
             entity.Property(x => x.ChatSessionPrice).HasColumnType("numeric(18,2)");
             entity.Property(x => x.OnlineConsultationPrice).HasColumnType("numeric(18,2)");
+            entity.Property(x => x.WorkStartTime).HasColumnType("time without time zone");
+            entity.Property(x => x.WorkEndTime).HasColumnType("time without time zone");
             entity.HasIndex(x => new { x.ClinicId, x.Status });
             entity.HasIndex(x => x.UserId).IsUnique();
             entity.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);

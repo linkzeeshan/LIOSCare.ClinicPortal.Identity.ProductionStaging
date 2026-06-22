@@ -7,8 +7,8 @@ public sealed class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Ap
 {
     public ApplicationDbContext CreateDbContext(string[] args)
     {
-        var cs = Environment.GetEnvironmentVariable("LIOSCARE_CONNECTION")
-                 ?? "Host=localhost;Port=5432;Database=social_platform_db;Username=postgres;Password=postgres;Include Error Detail=true";
+        var cs = Environment.GetEnvironmentVariable("ConnectionStrings:DefaultConnection")
+                 ?? "Host=127.0.0.1;Port=5432;Database=lioscare_doctor_dashboard;Username=postgres;Password=Z@@@a123;Include Error Detail=true";
         var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
         builder.UseNpgsql(cs, npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "portal"));
         return new ApplicationDbContext(builder.Options);
