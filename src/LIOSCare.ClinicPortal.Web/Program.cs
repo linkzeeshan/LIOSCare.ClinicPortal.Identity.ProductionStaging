@@ -159,8 +159,11 @@ app.MapHealthChecks("/health", new HealthCheckOptions
     }
 });
 
-app.MapControllerRoute("dashboard", "dashboard", new { controller = "Dashboard", action = "Index" });
+// Default route - Account/Login page
 app.MapControllerRoute("default", "{controller=Account}/{action=Login}/{id?}");
+
+// Specific routes
+app.MapControllerRoute("dashboard", "dashboard", new { controller = "Dashboard", action = "Index" });
 
 try
 {
