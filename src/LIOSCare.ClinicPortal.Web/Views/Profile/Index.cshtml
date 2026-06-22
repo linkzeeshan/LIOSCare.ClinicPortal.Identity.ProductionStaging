@@ -1,0 +1,238 @@
+@model LIOSCare.ClinicPortal.Web.Models.ProfileVm
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar-large">
+            @Model.FullName.Substring(0, 1).ToUpper()
+        </div>
+        <div class="profile-info">
+            <h1>@Model.FullName</h1>
+            <p class="profile-email">@Model.Email</p>
+            <div class="profile-badges">
+                <span class="badge badge-@(Model.Status == "Active" ? "success" : "warning")">@Model.Status</span>
+                @foreach (var role in Model.Roles)
+                {
+                    <span class="badge badge-primary">@role</span>
+                }
+            </div>
+        </div>
+        <div class="profile-actions">
+            <a asp-action="Edit" class="btn btn-primary">
+                <i class="bi bi-pencil"></i> Edit Profile
+            </a>
+            <a asp-action="ChangePassword" class="btn btn-outline">
+                <i class="bi bi-key"></i> Change Password
+            </a>
+        </div>
+    </div>
+
+    <div class="profile-content">
+        <div class="profile-section">
+            <h3>Account Information</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>User ID</label>
+                    <span>@Model.Id</span>
+                </div>
+                <div class="info-item">
+                    <label>Email Address</label>
+                    <span>@Model.Email</span>
+                </div>
+                <div class="info-item">
+                    <label>Account Status</label>
+                    <span class="status-@(Model.Status.ToLower())">@Model.Status</span>
+                </div>
+                <div class="info-item">
+                    <label>Roles</label>
+                    <span>@string.Join(", ", Model.Roles)</span>
+                </div>
+                <div class="info-item">
+                    <label>Member Since</label>
+                    <span>@Model.CreatedAt.ToString("MMMM dd, yyyy")</span>
+                </div>
+                <div class="info-item">
+                    <label>Last Activity</label>
+                    <span>@Model.LastLoginAt.ToString("MMMM dd, yyyy 'at' h:mm tt")</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h3>Quick Actions</h3>
+            <div class="action-grid">
+                <div class="action-card">
+                    <i class="bi bi-pencil-square"></i>
+                    <h4>Edit Profile</h4>
+                    <p>Update your personal information</p>
+                    <a asp-action="Edit" class="btn btn-sm btn-primary">Edit</a>
+                </div>
+                <div class="action-card">
+                    <i class="bi bi-shield-lock"></i>
+                    <h4>Security</h4>
+                    <p>Change your password and security settings</p>
+                    <a asp-action="ChangePassword" class="btn btn-sm btn-outline">Change Password</a>
+                </div>
+                <div class="action-card">
+                    <i class="bi bi-box-arrow-left"></i>
+                    <h4>Sign Out</h4>
+                    <p>Sign out of your account securely</p>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="confirmLogout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.profile-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.profile-info h1 {
+    margin: 0 0 0.5rem 0;
+    color: #2d3748;
+}
+
+.profile-email {
+    color: #718096;
+    margin: 0 0 1rem 0;
+}
+
+.profile-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.badge-success { background: #10b981; color: white; }
+.badge-warning { background: #f59e0b; color: white; }
+.badge-primary { background: #3b82f6; color: white; }
+
+.profile-actions {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.profile-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.profile-section h3 {
+    margin: 0 0 1.5rem 0;
+    color: #2d3748;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.info-item label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 0.875rem;
+}
+
+.info-item span {
+    color: #2d3748;
+}
+
+.status-active { color: #10b981; font-weight: 500; }
+.status-inactive { color: #f59e0b; font-weight: 500; }
+
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.action-card {
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.action-card i {
+    font-size: 2rem;
+    color: #3b82f6;
+    margin-bottom: 1rem;
+}
+
+.action-card h4 {
+    margin: 0 0 0.5rem 0;
+    color: #2d3748;
+}
+
+.action-card p {
+    color: #718096;
+    margin: 0 0 1rem 0;
+    font-size: 0.875rem;
+}
+
+@@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .profile-actions {
+        margin-left: 0;
+        flex-direction: row;
+        justify-content: center;
+    }
+}
+</style>

@@ -6,5 +6,12 @@ namespace LIOSCare.ClinicPortal.Web.Controllers;
 [AllowAnonymous]
 public sealed class HomeController : Controller
 {
-    public IActionResult Error() => View();
+    public IActionResult Error(string? message = null)
+    {
+        if (!string.IsNullOrEmpty(message))
+        {
+            ViewBag.ErrorMessage = Uri.UnescapeDataString(message);
+        }
+        return View();
+    }
 }

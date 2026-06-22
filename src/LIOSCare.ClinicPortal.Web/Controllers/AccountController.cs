@@ -10,7 +10,15 @@ namespace LIOSCare.ClinicPortal.Web.Controllers;
 public sealed class AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager) : Controller
 {
     [AllowAnonymous, HttpGet("login")]
-    public IActionResult Login(string? returnUrl = null) { ViewData["ReturnUrl"] = returnUrl; return View(new LoginVm()); }
+    public IActionResult Login(string? returnUrl = null)
+    {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction("Index", "Dashboard");
+        }
+        ViewData["ReturnUrl"] = returnUrl; 
+        return View(new LoginVm());
+    }
 
     [AllowAnonymous, HttpPost("login"), ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginVm model, string? returnUrl = null)

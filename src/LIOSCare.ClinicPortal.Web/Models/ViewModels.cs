@@ -88,3 +88,35 @@ public sealed class SessionReportFormVm
     public string TechniquesUsedCsv { get; set; } = string.Empty;
     [MaxLength(500)] public string? NextSteps { get; set; }
 }
+
+public sealed class ProfileVm
+{
+    public Guid Id { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset LastLoginAt { get; set; }
+    public IList<string> Roles { get; set; } = new List<string>();
+}
+
+public sealed class EditProfileVm
+{
+    [Required, MaxLength(160)] public string FullName { get; set; } = string.Empty;
+    [Required, EmailAddress] public string Email { get; set; } = string.Empty;
+}
+
+public sealed class ChangePasswordVm
+{
+    [Required, DataType(DataType.Password)]
+    [Display(Name = "Current Password")]
+    public string CurrentPassword { get; set; } = string.Empty;
+
+    [Required, DataType(DataType.Password), MinLength(8)]
+    [Display(Name = "New Password")]
+    public string NewPassword { get; set; } = string.Empty;
+
+    [Required, DataType(DataType.Password), Compare(nameof(NewPassword))]
+    [Display(Name = "Confirm New Password")]
+    public string ConfirmNewPassword { get; set; } = string.Empty;
+}
