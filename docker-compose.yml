@@ -19,8 +19,8 @@ services:
 
   lioscare-app:
     build:
-      context: .
-      dockerfile: src/LIOSCare.ClinicPortal.Web/Dockerfile
+      context: ./src/LIOSCare.ClinicPortal.Web
+      dockerfile: Dockerfile
     image: lios-clinic-portal:latest
     container_name: lios-clinic-portal
     restart: unless-stopped
@@ -38,6 +38,7 @@ services:
 
       Portal__AutoMigrateOnStartup: "true"
       Portal__SeedDemoData: "true"
+
     volumes:
       - ./logs:/app/logs
       - clinic_portal_uploads:/app/wwwroot/uploads
