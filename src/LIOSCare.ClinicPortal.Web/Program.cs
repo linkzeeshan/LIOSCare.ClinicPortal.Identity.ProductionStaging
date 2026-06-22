@@ -93,7 +93,8 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-if (builder.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
+if (builder.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup") || 
+    builder.Configuration.GetValue<bool>("Portal:AutoMigrateOnStartup"))
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -113,7 +114,7 @@ app.Use(async (context, next) =>
     {
         await next();
     }
-    catch (DoctorProfileNotFoundException ex)
+    catch (DoctorProfileNotFoundException)
     {
         context.Response.Clear();
         context.Response.StatusCode = 403;
