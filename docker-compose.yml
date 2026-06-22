@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  lioscare-app:
+    build:
+      context: ./src/LIOSCare.ClinicPortal.Web
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=lioscare_production
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      - postgres
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - lioscare-network
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=lioscare_production
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database-init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    networks:
+      - lioscare-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - lioscare-app
+    restart: unless-stopped
+    networks:
+      - lioscare-network
+
+volumes:
+  postgres_data:
+
+networks:
+  lioscare-network:
+    driver: bridge
