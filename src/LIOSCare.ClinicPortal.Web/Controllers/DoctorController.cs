@@ -1,3 +1,4 @@
+using LIOSCare.ClinicPortal.Web.Exceptions;
 using LIOSCare.ClinicPortal.Web.Models;
 using LIOSCare.ClinicPortal.Web.Security;
 using LIOSCare.ClinicPortal.Web.Services;
@@ -9,7 +10,18 @@ namespace LIOSCare.ClinicPortal.Web.Controllers;
 [Authorize(Roles = PortalRoles.Doctor)]
 public sealed class DoctorController(ICurrentUserService current, IDoctorWorkspaceService doctor) : Controller
 {
-    public async Task<IActionResult> Dashboard(CancellationToken ct) => View(await doctor.GetDoctorMetricsAsync(current.UserId, ct));
+    public async Task<IActionResult> Dashboard(CancellationToken ct)
+    {
+        try
+        {
+            return View(await doctor.GetDoctorMetricsAsync(current.UserId, ct));
+        }
+        catch (DoctorProfileNotFoundException)
+        {
+            ViewBag.ErrorMessage = "Your doctor profile is not configured. Please contact your administrator to set up your profile.";
+            return View("Error");
+        }
+    }
     public async Task<IActionResult> Jobs(CancellationToken ct) => View(await doctor.GetOpenJobsAsync(current.UserId, ct));
     [HttpPost, ValidateAntiForgeryToken] public async Task<IActionResult> AcceptJob(Guid id, CancellationToken ct) { await doctor.AcceptJobAsync(current.UserId, id, ct); return RedirectToAction(nameof(Sessions)); }
     [HttpPost, ValidateAntiForgeryToken] public async Task<IActionResult> RejectJob(RejectJobVm model, CancellationToken ct) { await doctor.RejectJobAsync(current.UserId, model, ct); return RedirectToAction(nameof(Jobs)); }

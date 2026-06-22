@@ -1,5 +1,6 @@
 using LIOSCare.ClinicPortal.Web.Data;
 using LIOSCare.ClinicPortal.Web.Data.Entities;
+using LIOSCare.ClinicPortal.Web.Exceptions;
 using LIOSCare.ClinicPortal.Web.Models;
 using LIOSCare.ClinicPortal.Web.Security;
 using Microsoft.AspNetCore.Identity;
@@ -115,7 +116,11 @@ public sealed class FacilityService(ApplicationDbContext db) : IFacilityService
     }
     public async Task SetFacilityStatusAsync(Guid id, string status, CancellationToken ct)
     {
-        var facility = await db.ClinicsHospitals.FirstAsync(x => x.Id == id, ct);
+        var facility = await db.ClinicsHospitals.FirstOrDefaultAsync(x => x.Id == id, ct);
+        if (facility == null)
+        {
+            throw new InvalidOperationException($"Facility not found with ID: {id}");
+        }
         facility.Status = status; facility.UpdatedAt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(ct);
     }
@@ -169,7 +174,11 @@ public sealed class ClinicAdminService(ApplicationDbContext db, UserManager<Appl
     }
     public async Task SetDoctorStatusAsync(Guid clinicId, Guid doctorId, string status, CancellationToken ct)
     {
-        var doctor = await db.DoctorProfiles.FirstAsync(x => x.Id == doctorId && x.ClinicId == clinicId, ct);
+        var doctor = await db.DoctorProfiles.FirstOrDefaultAsync(x => x.Id == doctorId && x.ClinicId == clinicId, ct);
+        if (doctor == null)
+        {
+            throw new InvalidOperationException($"Doctor not found with ID: {doctorId} in clinic: {clinicId}");
+        }
         doctor.Status = status; doctor.UpdatedAt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(ct);
     }
@@ -194,7 +203,15 @@ public interface IDoctorWorkspaceService
 
 public sealed class DoctorWorkspaceService(ApplicationDbContext db, IOptions<PortalRulesOptions> rules) : IDoctorWorkspaceService
 {
-    public async Task<DoctorProfile> GetMyDoctorProfileAsync(Guid userId, CancellationToken ct) => await db.DoctorProfiles.FirstAsync(x => x.UserId == userId, ct);
+    public async Task<DoctorProfile> GetMyDoctorProfileAsync(Guid userId, CancellationToken ct)
+    {
+        var profile = await db.DoctorProfiles.FirstOrDefaultAsync(x => x.UserId == userId, ct);
+        if (profile == null)
+        {
+            throw new DoctorProfileNotFoundException(userId);
+        }
+        return profile;
+    }
     public async Task<IReadOnlyList<MetricVm>> GetDoctorMetricsAsync(Guid userId, CancellationToken ct)
     {
         var doc = await GetMyDoctorProfileAsync(userId, ct);

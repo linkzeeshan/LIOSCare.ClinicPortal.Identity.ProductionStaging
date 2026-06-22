@@ -1,5 +1,6 @@
 using LIOSCare.ClinicPortal.Web.Data;
 using LIOSCare.ClinicPortal.Web.Data.Entities;
+using LIOSCare.ClinicPortal.Web.Exceptions;
 using LIOSCare.ClinicPortal.Web.Security;
 using LIOSCare.ClinicPortal.Web.Services;
 using Microsoft.AspNetCore.Identity;
@@ -104,6 +105,21 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/home/error");
     app.UseHsts();
 }
+
+// Global exception handler for doctor profile not found
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (DoctorProfileNotFoundException ex)
+    {
+        context.Response.Clear();
+        context.Response.StatusCode = 403;
+        context.Response.Redirect($"/home/error?message={Uri.EscapeDataString("Your doctor profile is not configured. Please contact your administrator to set up your profile.")}");
+    }
+});
 
 // Security Headers
 app.Use(async (context, next) =>

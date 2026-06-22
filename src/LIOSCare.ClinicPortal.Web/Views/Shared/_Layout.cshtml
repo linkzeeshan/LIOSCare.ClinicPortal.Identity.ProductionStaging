@@ -50,7 +50,32 @@ else
                 }
             </nav>
             <div class="privacy-card"><i class="bi bi-incognito"></i><div><strong>Patient anonymity</strong><span>Doctors see anonymous patient labels only.</span></div></div>
-            <form asp-controller="Account" asp-action="Logout" method="post">@Html.AntiForgeryToken()<button class="btn btn-ghost w-100"><i class="bi bi-box-arrow-left"></i> Logout</button></form>
+            
+            <!-- User Profile Section -->
+            <div class="user-profile-section">
+                <div class="profile-card">
+                    <div class="profile-info">
+                        <div class="avatar">@name.Substring(0,1)</div>
+                        <div class="profile-details">
+                            <div class="profile-name">@name</div>
+                            <div class="profile-role">@(User.IsInRole("SuperAdmin") ? "Super Admin" : User.IsInRole("Admin") ? "Administrator" : "Doctor")</div>
+                        </div>
+                    </div>
+                    <div class="profile-actions">
+                        <a asp-controller="Profile" asp-action="Index" class="btn btn-sm btn-outline">
+                            <i class="bi bi-person"></i> Profile
+                        </a>
+                        <button type="button" class="btn btn-sm btn-ghost" onclick="confirmLogout()">
+                            <i class="bi bi-box-arrow-left"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hidden Logout Form -->
+            <form id="logoutForm" asp-controller="Account" asp-action="Logout" method="post" style="display: none;">
+                @Html.AntiForgeryToken()
+            </form>
         </aside>
         <main class="main">
             <header class="topbar"><button class="mobile-menu" data-menu><i class="bi bi-list"></i></button><div class="search"><i class="bi bi-search"></i><span>Search clinics, doctors, sessions, jobs...</span></div><div class="profile-chip"><span>@name</span><div class="avatar">@name.Substring(0,1)</div></div></header>
@@ -61,6 +86,47 @@ else
         </main>
     </div>
 }
+<!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirm Logout</h3>
+            <button type="button" class="modal-close" onclick="closeLogoutModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to logout from your account?</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeLogoutModal()">Cancel</button>
+            <button type="button" class="btn btn-danger" onclick="performLogout()">
+                <i class="bi bi-box-arrow-left"></i> Logout
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmLogout() {
+    document.getElementById('logoutModal').style.display = 'flex';
+}
+
+function closeLogoutModal() {
+    document.getElementById('logoutModal').style.display = 'none';
+}
+
+function performLogout() {
+    document.getElementById('logoutForm').submit();
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('logoutModal');
+    if (event.target == modal) {
+        closeLogoutModal();
+    }
+}
+</script>
+
 <script src="~/js/site.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", false)
 </body>
