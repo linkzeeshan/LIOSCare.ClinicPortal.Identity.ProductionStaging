@@ -16,6 +16,8 @@ namespace LIOSCare.ClinicPortal.Web.Migrations
             migrationBuilder.EnsureSchema(
                 name: "portal");
 
+
+
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
