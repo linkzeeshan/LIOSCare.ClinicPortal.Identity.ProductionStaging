@@ -5,6 +5,7 @@ using LIOSCare.ClinicPortal.Web.Security;
 using LIOSCare.ClinicPortal.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Serilog;
 using AspNetCoreRateLimit;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -98,7 +99,8 @@ if (builder.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup") ||
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await db.Database.MigrateAsync();
+    var logger = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<Program>>();
+    await ApplyMigrationsAsync(db, logger);
 }
 
 if (!app.Environment.IsDevelopment())
@@ -194,4 +196,81 @@ catch (Exception ex)
 finally
 {
     Log.CloseAndFlush();
+}
+
+static async Task ApplyMigrationsAsync(ApplicationDbContext db, Microsoft.Extensions.Logging.ILogger logger)
+{
+    const int maxRetries = 3;
+    for (int attempt = 1; attempt <= maxRetries; attempt++)
+    {
+        try
+        {
+            await db.Database.MigrateAsync();
+            logger.LogInformation("Database migrations applied successfully.");
+            return;
+        }
+        catch (Npgsql.PostgresException ex) when (ex.SqlState == "42701") // column already exists
+        {
+            logger.LogWarning(
+                "Migration failed with '42701 column already exists' (attempt {Attempt}/{Max}). " +
+                "This means portal tables were partially created before migrations ran. " +
+                "Marking pending migrations as applied and retrying...", attempt, maxRetries);
+
+            // The production DB has the schema but __EFMigrationsHistory is missing entries.
+            // Find which migrations are pending and mark them as applied.
+            await MarkPartiallyAppliedMigrationsAsync(db, logger);
+
+            if (attempt == maxRetries)
+            {
+                logger.LogError(ex, "Migration failed after {Max} attempts.", maxRetries);
+                throw;
+            }
+        }
+    }
+}
+
+static async Task MarkPartiallyAppliedMigrationsAsync(ApplicationDbContext db, Microsoft.Extensions.Logging.ILogger logger)
+{
+    // Get all pending migrations
+    var pending = (await db.Database.GetPendingMigrationsAsync()).ToList();
+    if (pending.Count == 0) return;
+
+    // Get EF product version from the assembly
+    var efVersion = typeof(Microsoft.EntityFrameworkCore.DbContext).Assembly
+        .GetName().Version?.ToString(3) ?? "9.0.0";
+
+    var conn = db.Database.GetDbConnection();
+    await conn.OpenAsync();
+    try
+    {
+        // For each pending migration, check if the tables it would create already exist.
+        // If so, mark it as applied in __EFMigrationsHistory.
+        foreach (var migrationId in pending)
+        {
+            // Check whether the portal schema already exists with data
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+SELECT COUNT(*) FROM information_schema.tables
+WHERE table_schema = 'portal' AND table_name IN 
+    ('session_reports','chat_sessions','doctor_profiles','clinics_hospitals')";
+            var count = (long)(await cmd.ExecuteScalarAsync() ?? 0L);
+
+            if (count > 0)
+            {
+                using var insertCmd = conn.CreateCommand();
+                insertCmd.CommandText = $@"
+INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+VALUES ('{migrationId}', '{efVersion}')
+ON CONFLICT (""MigrationId"") DO NOTHING;";
+                await insertCmd.ExecuteNonQueryAsync();
+                logger.LogWarning(
+                    "Marked migration '{MigrationId}' as applied because portal schema already exists.",
+                    migrationId);
+            }
+        }
+    }
+    finally
+    {
+        await conn.CloseAsync();
+    }
 }

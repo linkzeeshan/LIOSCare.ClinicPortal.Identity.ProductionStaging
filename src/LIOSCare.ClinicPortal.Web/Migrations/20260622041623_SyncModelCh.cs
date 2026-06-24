@@ -12,8 +12,11 @@ namespace LIOSCare.ClinicPortal.Web.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql(@"ALTER TABLE ""AspNetUsers"" DROP CONSTRAINT IF EXISTS ""AK_AspNetUsers_TempId1"";");
             migrationBuilder.EnsureSchema(
                 name: "portal");
+
+
 
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
