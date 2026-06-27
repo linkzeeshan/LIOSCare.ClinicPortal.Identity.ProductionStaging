@@ -36,7 +36,7 @@ services:
 
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=lioscare_production;Username=${DB_USER};Password=${DB_PASSWORD};Include Error Detail=false"
 
-      Portal__AutoMigrateOnStartup: "true"
+      Portal__AutoMigrateOnStartup: "false"
       Portal__SeedDemoData: "true"
 
     volumes:

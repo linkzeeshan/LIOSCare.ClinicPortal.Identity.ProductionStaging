@@ -1,0 +1,16 @@
+@model LIOSCare.ClinicPortal.Web.Models.EmptyStateVm
+
+<div class="empty-state">
+    <div class="empty-state-icon">
+        <i class="bi @Model.Icon"></i>
+    </div>
+    <h3>@Model.Title</h3>
+    <p>@Model.Message</p>
+    @if (!string.IsNullOrEmpty(Model.ActionUrl) && !string.IsNullOrEmpty(Model.ActionText))
+    {
+        <a href="@Model.ActionUrl" class="btn btn-modern btn-modern-primary">
+            <i class="bi @Model.ActionIcon"></i>
+            @Model.ActionText
+        </a>
+    }
+</div>

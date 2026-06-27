@@ -1,2 +1,29 @@
-@{ ViewData["Title"] = "Access Denied"; }
-<div class="empty"><i class="bi bi-lock"></i><h2>Access denied</h2><p>Your role or claims do not allow this action.</p></div>
+@{ ViewData["Title"] = "Access denied"; }
+<div class="error-container">
+    <div class="error-card">
+        <div class="error-icon" style="background: #fee2e2; color: #dc2626;">
+            <i class="bi bi-lock-fill"></i>
+        </div>
+        <div class="error-content">
+            <h2>Access denied</h2>
+            <p>Your account does not have permission to view this page. If you believe this is a mistake, please contact your administrator.</p>
+            <div class="error-actions">
+                <a href="/" class="btn btn-primary">
+                    <i class="bi bi-house"></i> Home
+                </a>
+                @if (User?.Identity?.IsAuthenticated == true)
+                {
+                    <button type="button" class="btn btn-secondary" onclick="confirmLogout()">
+                        <i class="bi bi-box-arrow-left"></i> Sign out
+                    </button>
+                }
+                else
+                {
+                    <a href="/account/login" class="btn btn-secondary">
+                        <i class="bi bi-box-arrow-in-right"></i> Sign in
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

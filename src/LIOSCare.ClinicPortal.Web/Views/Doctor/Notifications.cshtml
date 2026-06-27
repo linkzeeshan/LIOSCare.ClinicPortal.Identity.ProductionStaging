@@ -1,3 +1,23 @@
 @model IReadOnlyList<NotificationVm>
 @{ ViewData["Title"] = "Notifications"; }
-<section class="timeline">@foreach(var n in Model){<article class="notice @(n.IsRead?"read":"unread")"><span class="badge blue">@n.Type</span><h3>@n.Title</h3><p>@n.Body</p><small>@n.CreatedAt.LocalDateTime.ToString("MMM dd HH:mm")</small></article>}</section>
+
+@if (!Model.Any())
+{
+    <partial name="_EmptyState" model='new EmptyStateVm("No notifications yet", "You will receive updates about job offers, sessions, and reschedule requests here.", "bi-bell")' />
+}
+else
+{
+    <section class="timeline">
+        @foreach (var n in Model)
+        {
+            <article class="notice @(n.IsRead ? "read" : "unread") card-modern">
+                <div class="notice-header">
+                    <span class="badge blue">@n.Type</span>
+                    <small><i class="bi bi-clock"></i> @n.CreatedAt.LocalDateTime.ToString("MMM dd HH:mm")</small>
+                </div>
+                <h3>@n.Title</h3>
+                <p>@n.Body</p>
+            </article>
+        }
+    </section>
+}

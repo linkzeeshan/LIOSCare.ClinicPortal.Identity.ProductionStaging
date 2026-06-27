@@ -1,0 +1,15 @@
+@model int?
+@{
+    var count = Model ?? 3;
+}
+<div class="skeleton-list">
+    @for (int i = 0; i < count; i++)
+    {
+        <div class="skeleton-card">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-line medium"></div>
+            <div class="skeleton skeleton-line long"></div>
+            <div class="skeleton skeleton-line short"></div>
+        </div>
+    }
+</div>

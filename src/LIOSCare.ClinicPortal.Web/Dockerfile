@@ -1,8 +1,12 @@
 # Use the official .NET 10.0 runtime as a parent image
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+EXPOSE 8080
+
+# Install runtime dependencies used by health checks and Npgsql/GSSAPI
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl libkrb5-3 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Use the SDK image to build the application
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
@@ -25,15 +29,15 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Create logs directory
-RUN mkdir -p /app/logs
+# Create logs/uploads directories used by mounted volumes
+RUN mkdir -p /app/logs /app/wwwroot/uploads
 
 # Set environment variables
 ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:80
+ENV ASPNETCORE_URLS=http://+:8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:80/health || exit 1
+# Health check must match ASPNETCORE_URLS/container port
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+  CMD curl -fsS http://localhost:8080/health || exit 1
 
 ENTRYPOINT ["dotnet", "LIOSCare.ClinicPortal.Web.dll"]
