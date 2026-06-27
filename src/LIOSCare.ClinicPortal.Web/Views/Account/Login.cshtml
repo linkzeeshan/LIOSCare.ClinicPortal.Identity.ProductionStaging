@@ -1,6 +1,53 @@
 @model LoginVm
-@{ ViewData["Title"] = "Login"; }
+@{ ViewData["Title"] = "Sign in"; }
 <div class="login-wrap">
-    <section class="login-hero"><div class="brand big"><div class="brand-logo"><img src="~/logo/LIO.jpeg" alt="LIOSCare logo" /></div><div><strong>LIOSCare</strong><span>Clinic / Hospital Portal</span></div></div><h1>Professional care operations for clinics, hospitals, and doctors.</h1><p>Identity, role permissions, clinic isolation, anonymous patient sessions, timed chat workflows and doctor job bidding.</p><div class="hero-grid"><div>Super Admin Control</div><div>Clinic Isolation</div><div>Doctor Job Offers</div><div>Anonymous Patients</div></div></section>
-    <section class="login-panel"><form asp-action="Login" method="post" class="login-card">@Html.AntiForgeryToken()<h2>Secure Login</h2><p>Sign in with your portal account.</p><div asp-validation-summary="ModelOnly" class="validation"></div><label>Email<input asp-for="Email" placeholder="doctor@lioscare.local" /></label><label>Password<input asp-for="Password" type="password" placeholder="••••••••" /></label><label class="check"><input asp-for="RememberMe" /> Remember me</label><button class="btn btn-primary w-100">Login</button><div class="demo"><b>Demo Accounts</b><span>superadmin@lioscare.local / SuperAdmin@123</span><span>clinicadmin@lioscare.local / Admin@123</span><span>doctor@lioscare.local / Doctor@123</span></div></form></section>
+    <section class="login-hero">
+        <div class="brand big">
+            <div class="brand-logo"><img src="~/logo/LIO.jpeg" alt="LIOSCare logo" /></div>
+            <div>
+                <strong>LIOSCare</strong>
+                <span>Clinic / Hospital Portal</span>
+            </div>
+        </div>
+        <h1>Secure operations for modern clinics and hospitals</h1>
+        <p>Role-based access, clinic isolation, anonymous patient sessions, timed chat workflows, and doctor job bidding — all in one place.</p>
+        <div class="hero-grid">
+            <div>Super Admin Control</div>
+            <div>Clinic Isolation</div>
+            <div>Doctor Job Offers</div>
+            <div>Anonymous Patients</div>
+        </div>
+    </section>
+    <section class="login-panel">
+        <form asp-action="Login" method="post" class="login-card">
+            @Html.AntiForgeryToken()
+            <h2>Welcome back</h2>
+            <p>Sign in to continue to your workspace.</p>
+
+            <div asp-validation-summary="ModelOnly" class="validation validation-summary-errors"></div>
+
+            <label for="Email">Email address</label>
+            <input asp-for="Email" id="Email" type="email" placeholder="name@lioscare.local" autocomplete="email" />
+
+            <label for="Password">Password</label>
+            <input asp-for="Password" id="Password" type="password" placeholder="Enter your password" autocomplete="current-password" />
+
+            <label class="check">
+                <input asp-for="RememberMe" />
+                <span>Keep me signed in for 30 days</span>
+            </label>
+
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-shield-lock"></i>
+                Sign in securely
+            </button>
+
+            <div class="demo">
+                <b>Demo credentials</b>
+                <span>superadmin@lioscare.local / SuperAdmin@123</span>
+                <span>clinicadmin@lioscare.local / Admin@123</span>
+                <span>doctor@lioscare.local / Doctor@123</span>
+            </div>
+        </form>
+    </section>
 </div>

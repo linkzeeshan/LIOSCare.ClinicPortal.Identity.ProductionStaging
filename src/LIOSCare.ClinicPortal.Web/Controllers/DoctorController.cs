@@ -18,8 +18,10 @@ public sealed class DoctorController(ICurrentUserService current, IDoctorWorkspa
         }
         catch (DoctorProfileNotFoundException)
         {
-            ViewBag.ErrorMessage = "Your doctor profile is not configured. Please contact your administrator to set up your profile.";
-            return View("Error");
+            return RedirectToAction("Error", "Home", new
+            {
+                message = Uri.EscapeDataString("Your doctor profile is not configured. Please contact your administrator to set up your profile.")
+            });
         }
     }
     public async Task<IActionResult> Jobs(CancellationToken ct) => View(await doctor.GetOpenJobsAsync(current.UserId, ct));

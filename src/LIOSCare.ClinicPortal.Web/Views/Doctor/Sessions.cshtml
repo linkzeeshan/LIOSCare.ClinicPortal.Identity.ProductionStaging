@@ -1,3 +1,42 @@
 @model IReadOnlyList<ChatSessionVm>
 @{ ViewData["Title"] = "Chat Sessions"; }
-<section class="card"><table class="table"><thead><tr><th>Patient</th><th>Type</th><th>Status</th><th>Start</th><th>Auto Close</th><th>Duration</th><th></th></tr></thead><tbody>@foreach(var s in Model){<tr><td><strong>@s.AnonymousPatient</strong></td><td>@s.JobType</td><td><span class="badge @s.Status.ToLower()">@s.Status</span></td><td>@s.ScheduledStartAt.LocalDateTime.ToString("MMM dd HH:mm")</td><td>@s.AutoCloseAt.LocalDateTime.ToString("HH:mm")</td><td>@s.DurationMinutes min</td><td><a asp-action="Session" asp-route-id="@s.Id">Open</a><a asp-action="NewReport" asp-route-sessionId="@s.Id" class="ms">Report</a></td></tr>}</tbody></table></section>
+
+@if (!Model.Any())
+{
+    <partial name="_EmptyState" model='new EmptyStateVm("No active chat sessions", "Accepted sessions will appear here once patients start a chat.", "bi-chat-dots")' />
+}
+else
+{
+    <div class="responsive-table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Start</th>
+                    <th>Auto Close</th>
+                    <th>Duration</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    <tr>
+                        <td data-label="Patient"><strong>@s.AnonymousPatient</strong></td>
+                        <td data-label="Type">@s.JobType</td>
+                        <td data-label="Status"><span class="badge @s.Status.ToLower()">@s.Status</span></td>
+                        <td data-label="Start">@s.ScheduledStartAt.LocalDateTime.ToString("MMM dd HH:mm")</td>
+                        <td data-label="Auto Close">@s.AutoCloseAt.LocalDateTime.ToString("HH:mm")</td>
+                        <td data-label="Duration">@s.DurationMinutes min</td>
+                        <td data-label="Actions" class="actions">
+                            <a class="btn btn-modern btn-modern-primary" asp-action="Session" asp-route-id="@s.Id"><i class="bi bi-chat"></i> Open</a>
+                            <a class="btn btn-modern btn-modern-secondary" asp-action="NewReport" asp-route-sessionId="@s.Id"><i class="bi bi-file-earmark-text"></i> Report</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

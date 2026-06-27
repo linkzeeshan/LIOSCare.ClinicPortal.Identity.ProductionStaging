@@ -11,6 +11,8 @@ public sealed record ChatSessionVm(Guid Id, string AnonymousPatient, string JobT
 public sealed record NotificationVm(Guid Id, string Title, string Body, string Type, DateTimeOffset CreatedAt, bool IsRead);
 public sealed record RescheduleVm(Guid Id, Guid ChatSessionId, string AnonymousPatient, DateTimeOffset RequestedStartAt, string Reason, string Status);
 
+public sealed record EmptyStateVm(string Title, string Message, string Icon = "bi-inbox", string? ActionUrl = null, string? ActionText = null, string ActionIcon = "bi-plus-lg");
+
 public sealed class LoginVm
 {
     [Required, EmailAddress] public string Email { get; set; } = string.Empty;

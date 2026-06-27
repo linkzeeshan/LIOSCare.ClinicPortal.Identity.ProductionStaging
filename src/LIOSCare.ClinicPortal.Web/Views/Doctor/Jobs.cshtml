@@ -1,3 +1,36 @@
 @model IReadOnlyList<JobVm>
 @{ ViewData["Title"] = "New Job Offers"; }
-<section class="job-grid">@foreach(var j in Model){<article class="job-card"><div class="job-top"><span class="badge violet">@j.JobType</span><span class="expires">Expires @j.OfferExpiresAt.LocalDateTime.ToString("HH:mm")</span></div><h2>@j.AnonymousPatient</h2><p>@j.Note</p><div class="job-actions"><form asp-action="AcceptJob" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@j.Id"/><button class="btn btn-primary">Accept</button></form><form asp-action="RejectJob" method="post">@Html.AntiForgeryToken()<input type="hidden" name="JobId" value="@j.Id"/><input name="Reason" placeholder="Reason"/><button class="btn btn-ghost">Reject</button></form></div></article>}</section>@if(!Model.Any()){<div class="empty"><i class="bi bi-inbox"></i><h2>No active offers</h2><p>New anonymous patient requests will appear here.</p></div>}
+
+@if (!Model.Any())
+{
+    <partial name="_EmptyState" model='new EmptyStateVm("No active job offers", "New anonymous patient requests will appear here as soon as they are available.", "bi-inbox")' />
+}
+else
+{
+    <section class="job-grid">
+        @foreach (var j in Model)
+        {
+            <article class="card-modern job-card">
+                <div class="job-top">
+                    <span class="badge violet">@j.JobType</span>
+                    <span class="expires"><i class="bi bi-clock"></i> Expires @j.OfferExpiresAt.LocalDateTime.ToString("HH:mm")</span>
+                </div>
+                <h3>@j.AnonymousPatient</h3>
+                <p>@j.Note</p>
+                <div class="job-actions stack-mobile">
+                    <form asp-action="AcceptJob" method="post" class="full-mobile">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@j.Id" />
+                        <button class="btn btn-modern btn-modern-primary w-100"><i class="bi bi-check-lg"></i> Accept</button>
+                    </form>
+                    <form asp-action="RejectJob" method="post" class="full-mobile">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="JobId" value="@j.Id" />
+                        <input name="Reason" class="form-control" placeholder="Reason (optional)" />
+                        <button class="btn btn-modern btn-modern-ghost"><i class="bi bi-x-lg"></i> Reject</button>
+                    </form>
+                </div>
+            </article>
+        }
+    </section>
+}

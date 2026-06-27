@@ -15,6 +15,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet" />
     <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/layout-enhancements.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/ui-components.css" rel="stylesheet" asp-append-version="true" />
 </head>
 <body>
 @if (isAuthPage && !User.Identity!.IsAuthenticated)
@@ -86,6 +88,56 @@ else
         </main>
     </div>
 }
+<style>
+    #logoutModal.modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(4px);
+        padding: 1rem;
+    }
+    #logoutModal .modal-content {
+        background: #fff;
+        border-radius: 14px;
+        width: 100%;
+        max-width: 420px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        overflow: hidden;
+    }
+    #logoutModal .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    #logoutModal .modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 700; color: #0f172a; }
+    #logoutModal .modal-close {
+        background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer;
+        width: 32px; height: 32px; border-radius: 6px; transition: background 0.2s;
+    }
+    #logoutModal .modal-close:hover { background: #f1f5f9; color: #0f172a; }
+    #logoutModal .modal-body { padding: 1.5rem; color: #475569; font-size: 0.95rem; }
+    #logoutModal .modal-footer {
+        display: flex; justify-content: flex-end; gap: 0.75rem;
+        padding: 1rem 1.5rem 1.5rem;
+    }
+    #logoutModal .btn-danger {
+        background: #dc2626; color: #fff; border: none; padding: 0.75rem 1.25rem;
+        border-radius: 8px; font-weight: 600; cursor: pointer;
+    }
+    #logoutModal .btn-danger:hover { background: #b91c1c; }
+    #logoutModal .btn-secondary {
+        background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0;
+        padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 600; cursor: pointer;
+    }
+    #logoutModal .btn-secondary:hover { background: #e2e8f0; }
+</style>
+
 <!-- Logout Confirmation Modal -->
 <div id="logoutModal" class="modal" style="display: none;">
     <div class="modal-content">
@@ -128,6 +180,7 @@ window.onclick = function(event) {
 </script>
 
 <script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/ui-components.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", false)
 </body>
 </html>

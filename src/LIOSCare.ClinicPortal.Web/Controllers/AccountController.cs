@@ -24,16 +24,24 @@ public sealed class AccountController(SignInManager<ApplicationUser> signInManag
     public async Task<IActionResult> Login(LoginVm model, string? returnUrl = null)
     {
         if (!ModelState.IsValid) return View(model);
-        var user = await userManager.FindByEmailAsync(model.Email);
-        if (user is null || user.Status != "Active") { ModelState.AddModelError(string.Empty, "Invalid or inactive account."); return View(model); }
-        var result = await signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: true);
-        if (!result.Succeeded) { ModelState.AddModelError(string.Empty, "Invalid login attempt."); return View(model); }
-        user.UpdatedAt = DateTimeOffset.UtcNow; await userManager.UpdateAsync(user);
-        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
-        var roles = await userManager.GetRolesAsync(user);
-        if (roles.Contains("SuperAdmin")) return RedirectToAction("Dashboard", "SuperAdmin");
-        if (roles.Contains("Admin")) return RedirectToAction("Dashboard", "Admin");
-        return RedirectToAction("Dashboard", "Doctor");
+        try
+        {
+            var user = await userManager.FindByEmailAsync(model.Email);
+            if (user is null || user.Status != "Active") { ModelState.AddModelError(string.Empty, "Invalid or inactive account."); return View(model); }
+            var result = await signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: true);
+            if (!result.Succeeded) { ModelState.AddModelError(string.Empty, "Invalid login attempt."); return View(model); }
+            user.UpdatedAt = DateTimeOffset.UtcNow; await userManager.UpdateAsync(user);
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
+            var roles = await userManager.GetRolesAsync(user);
+            if (roles.Contains("SuperAdmin")) return RedirectToAction("Dashboard", "SuperAdmin");
+            if (roles.Contains("Admin")) return RedirectToAction("Dashboard", "Admin");
+            return RedirectToAction("Dashboard", "Doctor");
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, $"Unable to sign in at this time. Please try again or contact support. (Ref: {ex.GetType().Name})");
+            return View(model);
+        }
     }
 
     [Authorize, HttpPost("logout"), ValidateAntiForgeryToken]

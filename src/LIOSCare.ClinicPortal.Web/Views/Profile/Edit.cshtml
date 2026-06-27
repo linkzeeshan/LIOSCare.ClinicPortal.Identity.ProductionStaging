@@ -11,7 +11,7 @@
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success">
+        <div class="alert alert-success alert-toast" data-toast-title="Saved" data-toast-message="@TempData["Success"]" data-toast-type="success">
             <i class="bi bi-check-circle"></i>
             @TempData["Success"]
         </div>

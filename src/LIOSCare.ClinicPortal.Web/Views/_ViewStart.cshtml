@@ -1,1 +1,15 @@
-@{ Layout = "_Layout"; }
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var isAuthController = string.Equals(controller, "Account", StringComparison.OrdinalIgnoreCase);
+    var isErrorView = string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Error", StringComparison.OrdinalIgnoreCase)
+                      && string.Equals(controller, "Home", StringComparison.OrdinalIgnoreCase);
+
+    if (isAuthController || isErrorView)
+    {
+        Layout = "_AuthLayout";
+    }
+    else
+    {
+        Layout = "_Layout";
+    }
+}
